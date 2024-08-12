@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Чат</title>
+    </head>
+    <body>
+        <h3 style="color:#ccc; font-size: 30px;">Пока нет сообщений...</h3>
+        <div class="message_holder">
+
+        </div>
+
+        <form method="POST">
+            <input type="text" class="username" placeholder="User Name">
+            <input type="text" class="message" placeholder="Messages">
+            <input type="submit">
+        </form>
+            
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+        <script type='text/javascript'>  // создаем джс скрипт
+            var socket = io.connect('http://' + document.domain + ':' + location.port); // устанавливаем соединение
+            socket.on('connect', function(){  // если кто то зашел на сайт или обновил страницу или еще что -то - срабатывает эта строчка и выполняется функция
+                socket.emit('my event', // emit - вызвать событие (отправить что-то)
+                {
+                    data:'Пользователь зашел на сайт или совершил какое-то действие'
+                }) 
+                var form = $('form').on('submit',function(e){
+                    e.preventDefault(); // обрабатываем форму без ПЕРЕЗАГРУЗКИ страницы
+                    let user_name = $('input.username').val(); // сохр в переменную то что ввел пользователь в форму
+                    let user_input = $('input.message').val(); // сохр в переменную то что ввел пользователь в форму
+                    socket.emit('my event', // emit - вызвать событие (отправить что-то)
+                    {
+                        user_name: user_name,
+                        user_input:user_input
+                    }) 
+                    $('input.message').val('').focus();//Удаляет сообщение после отправки
+                    // focus - Мышка после отправки фокусируется на вводе сразу 
+                })
+            })
+            socket.on('my response', function(json){
+                if (typeof json.user_name !== 'undefined'){
+                $('h3').remove() //Нахдим тег h3 ( он 1 поэтому пишем не его класс а h3 и remove - удаляем )
+                //Находим тег div с классом message_holder и добавляем туда тег
+                $('div.message_holder').append(
+                    '<div class="container"> <b style="color:#000">' + json.user_name +
+                        '</b>: ' + json.user_input + '</div>')
+                    }
+            })
+            
+
+
+        </script>
+
+    </body>
+</html>
